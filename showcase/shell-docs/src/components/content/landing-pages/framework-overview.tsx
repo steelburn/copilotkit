@@ -8,6 +8,7 @@ import type { ReactNode } from "react";
 
 import { customIcons } from "@/components/icons";
 import type { IconKey } from "@/components/icons";
+import { StartCommandCards } from "@/components/hero-start-commands";
 import { OpsPlatformCTA } from "@/components/react/ops-platform-cta";
 import type {
   FrameworkOverviewData,
@@ -117,6 +118,12 @@ export function FrameworkOverview({
   const link = (href: string) => rewriteHref(href, fromSlug, currentFramework);
 
   const guideLink = link(rawGuideLink);
+
+  // Frameworks whose init is the generic top-level command get the unified
+  // two-command recommendation (matching the home hero). Frameworks with
+  // bespoke setup (e.g. a2a's `git clone`, ms-agent-dotnet) keep their own
+  // single command chip — those commands aren't interchangeable with the CLI.
+  const isGenericInit = initCommand.trim() === "npx copilotkit@latest init";
 
   const [activeDemo, setActiveDemo] = useState<string>(
     liveDemos[0]?.type || "saas",
@@ -230,37 +237,47 @@ export function FrameworkOverview({
           {/* Action cluster: docs-style CTA + copy-command chip. The Live
               feature viewer link was dropped — the demo iframe below
               already covers "see it running" intent. */}
-          <div className="mt-7 flex flex-col sm:flex-row sm:items-center gap-3">
+          <div
+            className={
+              isGenericInit
+                ? "mt-7 flex max-w-[640px] flex-col gap-4"
+                : "mt-7 flex flex-col gap-3 sm:flex-row sm:items-center"
+            }
+          >
             <Link
               href={guideLink}
-              className="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-[var(--accent)] bg-[var(--accent-dim)] px-4 text-[13.5px] font-semibold text-[var(--accent)] no-underline transition-colors hover:bg-[var(--accent-light)] sm:w-auto"
+              className="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-[var(--accent)] bg-[var(--accent-dim)] px-4 text-[13.5px] font-semibold text-[var(--accent)] no-underline transition-colors hover:bg-[var(--accent-light)] sm:w-auto sm:self-start"
             >
               Start the quickstart
               <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
             </Link>
 
-            <button
-              type="button"
-              onClick={handleCopyCommand}
-              className="inline-flex w-full sm:w-auto items-center justify-between sm:justify-start gap-3 h-11 px-4 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--bg-elevated)] text-[var(--text)] transition-colors group"
-              aria-label="Copy install command"
-            >
-              <span className="flex items-center gap-2 text-[13.5px]">
-                <span className="text-[var(--accent)] opacity-70 font-mono">
-                  $
+            {isGenericInit ? (
+              <StartCommandCards />
+            ) : (
+              <button
+                type="button"
+                onClick={handleCopyCommand}
+                className="inline-flex w-full sm:w-auto cursor-pointer items-center justify-between sm:justify-start gap-3 h-11 px-4 rounded-lg border border-[var(--border)] bg-[var(--bg-surface)] hover:bg-[var(--bg-elevated)] text-[var(--text)] transition-colors group"
+                aria-label="Copy install command"
+              >
+                <span className="flex items-center gap-2 text-[13.5px]">
+                  <span className="text-[var(--accent)] opacity-70 font-mono">
+                    $
+                  </span>
+                  <span className="font-mono text-[13px] text-[var(--text-secondary)] group-hover:text-[var(--text)]">
+                    {initCommand}
+                  </span>
                 </span>
-                <span className="font-mono text-[13px] text-[var(--text-secondary)] group-hover:text-[var(--text)]">
-                  {initCommand}
+                <span className="text-[var(--text-muted)] group-hover:text-[var(--text)]">
+                  {copied ? (
+                    <Check className="h-4 w-4 text-[var(--accent)]" />
+                  ) : (
+                    <Copy className="h-4 w-4" />
+                  )}
                 </span>
-              </span>
-              <span className="text-[var(--text-muted)] group-hover:text-[var(--text)]">
-                {copied ? (
-                  <Check className="h-4 w-4 text-[var(--accent)]" />
-                ) : (
-                  <Copy className="h-4 w-4" />
-                )}
-              </span>
-            </button>
+              </button>
+            )}
           </div>
         </header>
 

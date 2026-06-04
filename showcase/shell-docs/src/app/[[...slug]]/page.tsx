@@ -8,9 +8,8 @@
 
 import React from "react";
 import type { Metadata } from "next";
-import { AgentStartPrompt } from "@/components/agent-start-prompt";
 import { DocsLandingNext } from "@/components/docs-landing-next";
-import { HeroQuickstartDropdown } from "@/components/hero-quickstart-dropdown";
+import { HeroStartCommands } from "@/components/hero-start-commands";
 import { LandingSampleTabs } from "@/components/landing-sample-tabs";
 import { ShellDocsLayout } from "@/components/shell-docs-layout";
 import { SidebarFrameworkSelector } from "@/components/sidebar-framework-selector";
@@ -21,13 +20,11 @@ import {
   buildFrameworkOnlyNav,
   loadDoc,
 } from "@/lib/docs-render";
-import { compareByDisplayOrder } from "@/lib/framework-order";
 import { navTreeToPageTree } from "@/lib/page-tree-bridge";
 import {
   getDocsFolder,
   getDocsMode,
   getIntegration,
-  getIntegrations,
 } from "@/lib/registry";
 import { buildDocMetadata } from "@/lib/seo-metadata";
 
@@ -122,21 +119,6 @@ function DocsOverview() {
     ...pageTree,
     children: rewriteUrls(pageTree.children),
   };
-  const quickstartOptions = getIntegrations()
-    .filter((i) => getDocsMode(i.slug) !== "hidden")
-    .slice()
-    .sort((a, b) => {
-      if (a.slug === HOME_DEFAULT_FRAMEWORK) return -1;
-      if (b.slug === HOME_DEFAULT_FRAMEWORK) return 1;
-      return compareByDisplayOrder(a.slug, b.slug);
-    })
-    .map((i) => ({
-      slug: i.slug,
-      name: i.slug === HOME_DEFAULT_FRAMEWORK ? "CopilotKit (Default)" : i.name,
-      logo: i.logo ?? null,
-      href: `/${i.slug}/quickstart`,
-    }));
-
   return (
     <ShellDocsLayout tree={homePageTree} banner={<SidebarFrameworkSelector />}>
       <div className="docs-inner-content max-w-[1040px] mx-auto px-4 md:px-6 pt-0 pb-6">
@@ -165,9 +147,8 @@ function DocsOverview() {
                 human-in-the-loop workflows on any AG-UI compatible backend.
               </p>
             </div>
-            <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center">
-              <HeroQuickstartDropdown options={quickstartOptions} />
-              <AgentStartPrompt />
+            <div className="mt-7">
+              <HeroStartCommands />
             </div>
           </div>
         </section>
