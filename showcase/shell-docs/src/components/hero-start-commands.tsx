@@ -54,9 +54,16 @@ const COMMANDS: StartCommand[] = [
   },
 ];
 
-function CommandCard({ label, description, command, icon: Icon }: StartCommand) {
+function CommandCard({
+  label,
+  description,
+  command,
+  icon: Icon,
+}: StartCommand) {
   const [copyState, setCopyState] = React.useState<CopyState>("idle");
-  const resetTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+  const resetTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
 
   React.useEffect(
     () => () => {
@@ -90,7 +97,8 @@ function CommandCard({ label, description, command, icon: Icon }: StartCommand) 
 
   let status = "";
   if (copied) status = `Copied ${command} to clipboard`;
-  else if (errored) status = "Clipboard blocked; select the command text manually";
+  else if (errored)
+    status = "Clipboard blocked; select the command text manually";
 
   return (
     <div className="flex flex-1 flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 transition-colors hover:border-[var(--accent)]">
@@ -102,7 +110,9 @@ function CommandCard({ label, description, command, icon: Icon }: StartCommand) 
           <Icon className="h-4 w-4" />
         </span>
         <div className="min-w-0">
-          <div className="text-sm font-semibold text-[var(--text)]">{label}</div>
+          <div className="text-sm font-semibold text-[var(--text)]">
+            {label}
+          </div>
           <div className="text-[12px] leading-snug text-[var(--text-muted)]">
             {description}
           </div>
@@ -119,7 +129,10 @@ function CommandCard({ label, description, command, icon: Icon }: StartCommand) 
             : "border-[var(--border)] text-[var(--text-secondary)] hover:border-[var(--accent)]"
         }`}
       >
-        <span aria-hidden="true" className="select-none text-[var(--text-faint)]">
+        <span
+          aria-hidden="true"
+          className="select-none text-[var(--text-faint)]"
+        >
           $
         </span>
         <span className="min-w-0 flex-1 truncate">{command}</span>

@@ -21,11 +21,7 @@ import {
   loadDoc,
 } from "@/lib/docs-render";
 import { navTreeToPageTree } from "@/lib/page-tree-bridge";
-import {
-  getDocsFolder,
-  getDocsMode,
-  getIntegration,
-} from "@/lib/registry";
+import { getDocsFolder, getDocsMode, getIntegration } from "@/lib/registry";
 import { buildDocMetadata } from "@/lib/seo-metadata";
 
 // Force dynamic rendering so unknown slugs reliably return HTTP 404
