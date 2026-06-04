@@ -111,7 +111,7 @@ function CommandCard({
     status = "Clipboard blocked; select the command text manually";
 
   return (
-    <div className="flex flex-1 flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 transition-colors hover:border-[var(--accent)]">
+    <div className="flex min-w-0 flex-col gap-3 rounded-xl border border-[var(--border)] bg-[var(--bg-surface)] p-4 transition-colors hover:border-[var(--accent)]">
       <div className="flex items-start gap-2.5">
         <span
           aria-hidden="true"
@@ -133,6 +133,7 @@ function CommandCard({
         type="button"
         onClick={onCopy}
         aria-label={copyAriaLabel}
+        title={command}
         className={`group flex h-10 w-full cursor-pointer items-center gap-2 rounded-lg border bg-[var(--bg-elevated)] px-3 text-left font-mono text-[12.5px] transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[var(--accent)] ${
           errored
             ? "border-red-500 text-[var(--text-secondary)]"
@@ -183,8 +184,14 @@ export function StartCommandCards({
 }: {
   createFramework?: string;
 } = {}) {
+  // A framework-pinned `create` command (e.g. `--framework langgraph-js`) is
+  // long, so stack the cards in a single column to keep it fully readable. The
+  // short home commands sit side-by-side from `sm` up. Using a grid means the
+  // two columns are always constrained to the container — a long command can
+  // never push the second card off-screen (it truncates within its track).
+  const stacked = Boolean(createFramework);
   return (
-    <div className="flex flex-col gap-3 sm:flex-row">
+    <div className={`grid gap-3 ${stacked ? "" : "sm:grid-cols-2"}`}>
       {buildCommands(createFramework).map((command) => (
         <CommandCard key={command.id} {...command} />
       ))}
