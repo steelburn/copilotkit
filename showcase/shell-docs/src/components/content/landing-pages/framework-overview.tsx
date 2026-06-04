@@ -89,6 +89,28 @@ function SectionEyebrow({ label }: { label: string }) {
   );
 }
 
+// Docs framework slug -> the `copilotkit` CLI's own `--framework` value. The
+// CLI uses different identifiers than our docs slugs, so the create command on
+// a framework page only pre-selects a framework when there's a verified 1:1
+// template match (values confirmed against the CLI's AGENT_FRAMEWORKS enum).
+// Slugs intentionally omitted fall back to a bare `npx copilotkit create`:
+//   - crewai-crews: the CLI ships "CrewAI Flows" (`flows`), not Crews — different
+//   - langgraph-fastapi, claude-sdk-*, langroid, ms-agent-harness-dotnet,
+//     spring-ai, agent-spec, deepagents: no matching CLI template
+const DOCS_SLUG_TO_CLI_FRAMEWORK: Record<string, string> = {
+  "langgraph-python": "langgraph-py",
+  "langgraph-typescript": "langgraph-js",
+  "google-adk": "adk",
+  strands: "aws-strands-py",
+  "ms-agent-dotnet": "microsoft-agent-framework-dotnet",
+  "ms-agent-python": "microsoft-agent-framework-py",
+  mastra: "mastra",
+  "pydantic-ai": "pydantic-ai",
+  llamaindex: "llamaindex",
+  agno: "agno",
+  ag2: "ag2",
+};
+
 export function FrameworkOverview({
   data,
   currentFramework,
@@ -117,13 +139,12 @@ export function FrameworkOverview({
   const fromSlug = rawGuideLink.split("/")[1] ?? "";
   const link = (href: string) => rewriteHref(href, fromSlug, currentFramework);
 
-  const guideLink = link(rawGuideLink);
-
   // Frameworks whose init is the generic top-level command get the unified
   // two-command recommendation (matching the home hero). Frameworks with
   // bespoke setup (e.g. a2a's `git clone`, ms-agent-dotnet) keep their own
   // single command chip — those commands aren't interchangeable with the CLI.
   const isGenericInit = initCommand.trim() === "npx copilotkit@latest init";
+  const createFramework = DOCS_SLUG_TO_CLI_FRAMEWORK[currentFramework];
 
   const [activeDemo, setActiveDemo] = useState<string>(
     liveDemos[0]?.type || "saas",
@@ -237,23 +258,9 @@ export function FrameworkOverview({
           {/* Action cluster: docs-style CTA + copy-command chip. The Live
               feature viewer link was dropped — the demo iframe below
               already covers "see it running" intent. */}
-          <div
-            className={
-              isGenericInit
-                ? "mt-7 flex max-w-[640px] flex-col gap-4"
-                : "mt-7 flex flex-col gap-3 sm:flex-row sm:items-center"
-            }
-          >
-            <Link
-              href={guideLink}
-              className="group inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg border border-[var(--accent)] bg-[var(--accent-dim)] px-4 text-[13.5px] font-semibold text-[var(--accent)] no-underline transition-colors hover:bg-[var(--accent-light)] sm:w-auto sm:self-start"
-            >
-              Start the quickstart
-              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-
+          <div className="mt-7 max-w-[640px]">
             {isGenericInit ? (
-              <StartCommandCards />
+              <StartCommandCards createFramework={createFramework} />
             ) : (
               <button
                 type="button"

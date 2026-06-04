@@ -7,8 +7,8 @@
 //   • "Start a new project"        → npx copilotkit create
 //   • "Add to an existing project" → npx copilotkit skills onboard
 //
-// The "new project" card carries a subtle accent emphasis as the happy path;
-// the "existing project" card stays neutral. Each command row is a single copy
+// Both cards are equal weight (neutral surface, accent only on the icon and on
+// hover) — no pre-selected default. Each command row is a single copy
 // button (click anywhere on the row to copy) with an `aria-live` status sibling
 // so the copy result is announced to assistive tech. Clipboard failures (insecure
 // context, sandboxed iframe, permissions policy, in-app webview, older browsers)
@@ -37,22 +37,32 @@ type StartCommand = {
   icon: LucideIcon;
 };
 
-const COMMANDS: StartCommand[] = [
-  {
-    id: "create",
-    label: "Start a new project",
-    description: "Scaffold a fresh CopilotKit app",
-    command: "npx copilotkit create",
-    icon: Sparkles,
-  },
-  {
-    id: "onboard",
-    label: "Add to an existing project",
-    description: "Wire CopilotKit into your codebase",
-    command: "npx copilotkit skills onboard",
-    icon: FolderPlus,
-  },
-];
+// `createFramework` is the CLI's own `--framework` value (e.g. "langgraph-js"),
+// NOT the docs slug — callers translate before passing it in. When set, the
+// "new project" command pre-selects that framework so the framework landing
+// pages recommend a ready-to-run command. `skills onboard` takes no framework
+// flag (it hands the choice to your coding agent), so it's identical everywhere.
+function buildCommands(createFramework?: string): StartCommand[] {
+  const createCommand = createFramework
+    ? `npx copilotkit create --framework ${createFramework}`
+    : "npx copilotkit create";
+  return [
+    {
+      id: "create",
+      label: "Start a new project",
+      description: "Scaffold a fresh CopilotKit app",
+      command: createCommand,
+      icon: Sparkles,
+    },
+    {
+      id: "onboard",
+      label: "Add to an existing project",
+      description: "Wire CopilotKit into your codebase",
+      command: "npx copilotkit skills onboard",
+      icon: FolderPlus,
+    },
+  ];
+}
 
 function CommandCard({
   label,
@@ -166,11 +176,16 @@ function CommandCard({
 // The two-card grid on its own — shared by the home hero and the framework
 // landing heroes so the "new project / existing project" recommendation reads
 // identically everywhere. Callers own the surrounding layout (width cap,
-// adjacent CTAs, footer links).
-export function StartCommandCards() {
+// adjacent CTAs, footer links). Pass `createFramework` (a CLI `--framework`
+// value) on framework pages to pre-select that framework in the create command.
+export function StartCommandCards({
+  createFramework,
+}: {
+  createFramework?: string;
+} = {}) {
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
-      {COMMANDS.map((command) => (
+      {buildCommands(createFramework).map((command) => (
         <CommandCard key={command.id} {...command} />
       ))}
     </div>
